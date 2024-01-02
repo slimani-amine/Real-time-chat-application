@@ -6,7 +6,6 @@ import { useEffect } from "react";
 const WithPrivateRoute = ({ children }) => {
   const navigate = useNavigate();
   const { isLoading, isAuthenticated } = useUser();
-
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {
       navigate("/login");

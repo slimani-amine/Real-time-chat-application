@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import ThemeToggler from "./ThemeToggler";
 import { HiOutlineLogout } from "react-icons/hi";
 import { useUser } from "../../hooks/useUser";
+import { useLogout } from "../../hooks/useLogout";
 
 export default function Header() {
   const [modal, setModal] = useState(false);
+  const { logout , isLoading:isLogout } = useLogout();
   const { isLoading, isAuthenticated } = useUser();
 
   return (
@@ -21,7 +23,11 @@ export default function Header() {
             <ThemeToggler />
             {isAuthenticated && (
               <>
-                <button className="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5">
+                <button
+                  className="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5"
+                  onClick={logout}
+                  disabled={isLogout}
+                >
                   <HiOutlineLogout className="h-8 w-8" aria-hidden="true" />
                 </button>
                 <Link
