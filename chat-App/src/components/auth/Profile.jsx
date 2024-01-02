@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-// import { useAuth } from "../../contexts/AuthContext";
-import { generateAvatar } from "../../utils/GenerateAvatar";
+import { useUser } from "../../hooks/useUser";
+import toast from "react-hot-toast";
+import { useUpdateUser } from "../../hooks/useUpdateUser";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -10,45 +10,34 @@ function classNames(...classes) {
 
 export default function Profile() {
   const navigate = useNavigate();
-
-  const [username, setUsername] = useState("");
-  const [avatars, setAvatars] = useState([]);
+  const { isLoading, user } = useUser();
+  const avatars = [
+    "https://shorturl.at/enV05",
+    "https://shorturl.at/qtuvL",
+    "https://shorturl.at/chntN",
+    "https://shorturl.at/ctwM1",
+    "https://shorturl.at/ltyO9",
+    "https://img.freepik.com/free-psd/3d-illustration-human-avatar-profile_23-2150671132.jpg",
+  ];
+  const [userName, setUsername] = useState(user?.user_metadata?.fullName);
   const [selectedAvatar, setSelectedAvatar] = useState();
   const [loading, setLoading] = useState(false);
-
-  // const { currentUser, updateUserProfile, setError } = useAuth();
-
-  useEffect(() => {
-    const fetchData = () => {
-      const res = generateAvatar();
-      setAvatars(res);
-    };
-
-    fetchData();
-  }, []);
-
+  const { isUpadating, updateUser } = useUpdateUser();
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
-    if (selectedAvatar === undefined) {
-      return setError("Please select an avatar");
+    if (
+      userName?.length <= 2 ||
+      (user?.user_metadata?.fullName === userName &&
+        setSelectedAvatar === undefined)
+    ) {
+      toast.error("Put a valid name and of course not the same one");
+      return;
     }
-
-    try {
-      // setError("");
-      setLoading(true);
-      // const user = currentUser;
-      const profile = {
-        displayName: username,
-        photoURL: avatars[selectedAvatar],
-      };
-      // await updateUserProfile(user, profile);
-      navigate("/");
-    } catch (e) {
-      // setError("Failed to update profile");
-    }
-
-    setLoading(false);
+    const profile = {
+      fullName: userName,
+      avatar: avatars[selectedAvatar],
+    };
+    updateUser(profile);
   };
 
   return (
@@ -89,7 +78,7 @@ export default function Profile() {
               required
               className="appearance-none rounded-none relative block w-full px-3 py-2 placeholder-gray-500 rounded-t-md bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:z-10 sm:text-sm"
               placeholder="Enter a Display Name"
-              defaultValue={currentUser.displayName && currentUser.displayName}
+              defaultValue={userName}
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>

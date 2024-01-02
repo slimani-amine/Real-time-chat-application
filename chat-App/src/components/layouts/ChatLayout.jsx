@@ -3,6 +3,8 @@ import { useState } from "react";
 // import ChatRoom from "../../ui/ChatRoom";
 import SearchUsers from "../../ui/SearchUsers";
 import Welcome from "../../ui/Welcome";
+import { useUser } from "../../hooks/useUser";
+import Spinner from "../../ui/Spinner";
 
 export default function ChatLayout() {
   const currentChat = "";
@@ -39,6 +41,11 @@ export default function ChatLayout() {
       setFilteredUsers(searchedUsers);
     }
   };
+  const { isLoading, isAuthenticated } = useUser();
+
+  if (isLoading) {
+    return <Spinner />;
+  }
   return (
     <div className="container mx-auto">
       <div className="min-w-full bg-white border-x border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700 rounded lg:grid lg:grid-cols-3">
