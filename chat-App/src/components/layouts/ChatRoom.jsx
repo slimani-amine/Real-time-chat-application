@@ -2,9 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import Message from "../../ui/Message";
 import Contact from "../../ui/Contact";
 import ChatForm from "../../ui/ChatForm";
-import { useLocation } from "react-router-dom";
 import { getChatRoomById } from "../../service/apiChatRooms";
-import { useParams } from "react-router-dom";
 
 export default function ChatRoom({ currentChat, currentUser }) {
   const [messages, setMessages] = useState([]);

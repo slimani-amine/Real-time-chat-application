@@ -53,7 +53,8 @@ export default function AllUsers({
       };
       const chatRoom = await getChatRoom(members);
       const chatRoomId = chatRoom[0].reciever_id + "";
-      const message = await getMessageByChatRoom(chatRoomId);
+      const messages = await getMessageByChatRoom(chatRoomId);
+      
       navigate(`/${chatRoomId}`);
     } catch (error) {
       console.error("Error handling old chat room:", error.message);
@@ -84,6 +85,7 @@ export default function AllUsers({
               onClick={() => handleOldChatRoom(user)}
             >
               <UserLayout user={user} />
+              
             </div>
           ))}
         </li>

@@ -11,10 +11,7 @@ import { getChatRoomBySenderId } from "../../service/apiChatRooms";
 export default function ChatLayout() {
   let location = useLocation();
 
-  const chatId = location.pathname.slice(
-    location.pathname.indexOf("/") + 1,
-    location.pathname.length
-  );
+  const chatId = location.pathname.split("/")[1];
 
   const [isContact, setIsContact] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -32,37 +29,46 @@ export default function ChatLayout() {
         console.error("Error fetching chat rooms:", error.message);
       }
     };
-
     fetchChatRoom();
   }, []);
+
   const users =
     allUsers &&
     allUsers.filter((user) => {
       return user.user_id !== currentUser.id;
     });
 
-    const usersWithoutReceiverId = users && users.filter((user) => {
-      const isInChatRoom = chatRooms && chatRooms.some((room) => room.reciever_id === user.id);
-      return !isInChatRoom;
-    });
-    
+  const usersWithoutReceiverId =
+    (users &&
+      users.filter((user) => {
+        const isInChatRoom =
+          chatRooms && chatRooms.some((room) => room.reciever_id === user.id);
+        return !isInChatRoom;
+      })) ||
+    [];
 
   const handleSearch = (newSearchQuery) => {
     setSearchQuery(newSearchQuery);
-    const searchedUsers = users.filter((user) => {
+    console.log(allUsers, "allUsers");
+    const searchedUsers = allUsers.filter((user) => {
       return user.fullName.toLowerCase().includes(newSearchQuery.toLowerCase());
     });
     const searchedUsersId = searchedUsers.map((u) => u.id);
-    if (chatRooms.length !== 0) {
-      chatRooms.forEach((chatRoom) => {
-        const isUserContact = chatRoom.members.some(
-          (e) => e !== currentUser.id && searchedUsersId.includes(e)
-        );
-        setIsContact(isUserContact);
+    console.log(searchedUsersId, "searchedUsersId");
 
-        isUserContact
-          ? setFilteredRooms([chatRoom])
-          : setFilteredUsers(searchedUsers);
+    if (chatRooms.length !== 0) {
+      console.log(chatRooms, "chatRooms");
+      chatRooms.forEach((chatRoom) => {
+        const usersWithoutReceiverId =
+          searchedUsers &&
+          searchedUsers.filter((user) => {
+            const isInChatRoom =
+              chatRooms &&
+              chatRooms.some((room) => room.reciever_id === user.id);
+            return isInChatRoom;
+          });
+        console.log(usersWithoutReceiverId);
+        setFilteredRooms(usersWithoutReceiverId);
       });
     } else {
       setFilteredUsers(searchedUsers);
@@ -78,12 +84,12 @@ export default function ChatLayout() {
         <div className="bg-white border-r border-gray-200 dark:bg-gray-900 dark:border-gray-700 lg:col-span-1">
           <SearchUsers handleSearch={handleSearch} />
           <AllUsers
-            users={searchQuery !== "" ? filteredUsers : usersWithoutReceiverId}
-            chatRooms={searchQuery !== "" ? filteredRooms : chatRooms}
+            users={
+              searchQuery !== "" ? filteredUsers : usersWithoutReceiverId || []
+            }
+            chatRooms={searchQuery !== "" ? filteredRooms : chatRooms || []}
             setChatRooms={setChatRooms}
-            // onlineUsersId={onlineUsersId}
             currentUser={currentUser}
-            // changeChat={handleChatChange}
           />
         </div>
         {!chatId ? (
