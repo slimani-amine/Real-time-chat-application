@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSignup } from "../../hooks/useSignup";
+import { useInsertUser } from "../../hooks/useInsertUser";
+import { useUser } from "../../hooks/useUser";
+import Spinner from "../../ui/Spinner";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -9,16 +12,17 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const { signup, isLoading } = useSignup();
-
-  const onSubmit = () => {
+  const { insertUser } = useInsertUser();
+  const { user, isLoading: loading } = useUser();
+  const onSubmit = async () => {
     if (password !== confirmPassword) {
       return setError("Passwords do not match");
     }
-    
     signup(
       { fullName, email, password },
       {
-        onSettled: () => {
+        onSettled: (user) => {
+          insertUser({ fullName, userId: user.user.id });
           setEmail("");
           setPassword("");
           setConfirmPassword("");

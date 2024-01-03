@@ -10,7 +10,7 @@ export function useSignup() {
   const { mutate: signup, isLoading } = useMutation({
     mutationFn: signupApi,
     onSuccess: (user) => {
-      queryClient.setQueryData(["user"], user.user);
+      queryClient.setQueryData(["user"], user);
       toast.success("Welcome");
       navigate("/", { replace: true });
     },

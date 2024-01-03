@@ -1,23 +1,12 @@
-import { useState, useEffect } from "react";
+import UserLayout from "../components/layouts/UserLayout";
+import { useReceiver } from "../hooks/useReceiver";
+import Spinner from "./Spinner";
 
-import { getUser } from "../../services/ChatService";
-import UserLayout from "../layouts/UserLayout";
+export default function Contact() {
+  const { isFetching, receiver } = useReceiver();
 
-export default function Contact({ chatRoom, onlineUsersId, currentUser }) {
-  const [contact, setContact] = useState();
-
-  useEffect(() => {
-    const contactId = chatRoom.members?.find(
-      (member) => member !== currentUser.uid
-    );
-
-    const fetchData = async () => {
-      const res = await getUser(contactId);
-      setContact(res);
-    };
-
-    fetchData();
-  }, [chatRoom, currentUser]);
-
-  return <UserLayout user={contact} onlineUsersId={onlineUsersId} />;
+  if (isFetching) {
+    return <Spinner />;
+  }
+  return <UserLayout user={receiver && receiver[0]} />;
 }

@@ -1,35 +1,62 @@
-import { useState } from "react";
-// import AllUsers from "../../ui/AllUsers";
-// import ChatRoom from "../../ui/ChatRoom";
+import { useEffect, useState } from "react";
 import SearchUsers from "../../ui/SearchUsers";
 import Welcome from "../../ui/Welcome";
-import { useUser } from "../../hooks/useUser";
 import Spinner from "../../ui/Spinner";
-
+import { useUsers } from "../../hooks/useUsers";
+import { useUser } from "../../hooks/useUser";
+import AllUsers from "../../ui/AllUsers";
+import ChatRoom from "./ChatRoom";
+import { useLocation } from "react-router-dom";
+import { getChatRoomBySenderId } from "../../service/apiChatRooms";
 export default function ChatLayout() {
-  const currentChat = "";
+  let location = useLocation();
+
+  const chatId = location.pathname.slice(
+    location.pathname.indexOf("/") + 1,
+    location.pathname.length
+  );
+
   const [isContact, setIsContact] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [chatRooms, setChatRooms] = useState([]);
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const handleSearch = (newSearchQuery) => {
-    setSearchQuery(newSearchQuery);
+  const { isLoading, users: allUsers } = useUsers();
+  const { user: currentUser } = useUser();
+  useEffect(() => {
+    const fetchChatRoom = async () => {
+      try {
+        const chatData = await getChatRoomBySenderId(currentUser.id);
+        setChatRooms(chatData);
+      } catch (error) {
+        console.error("Error fetching chat rooms:", error.message);
+      }
+    };
 
-    const searchedUsers = users.filter((user) => {
-      return user.displayName
-        .toLowerCase()
-        .includes(newSearchQuery.toLowerCase());
+    fetchChatRoom();
+  }, []);
+  const users =
+    allUsers &&
+    allUsers.filter((user) => {
+      return user.user_id !== currentUser.id;
     });
 
-    const searchedUsersId = searchedUsers.map((u) => u.uid);
+    const usersWithoutReceiverId = users && users.filter((user) => {
+      const isInChatRoom = chatRooms && chatRooms.some((room) => room.reciever_id === user.id);
+      return !isInChatRoom;
+    });
+    
 
-    // If there are initial contacts
+  const handleSearch = (newSearchQuery) => {
+    setSearchQuery(newSearchQuery);
+    const searchedUsers = users.filter((user) => {
+      return user.fullName.toLowerCase().includes(newSearchQuery.toLowerCase());
+    });
+    const searchedUsersId = searchedUsers.map((u) => u.id);
     if (chatRooms.length !== 0) {
       chatRooms.forEach((chatRoom) => {
-        // Check if searched user is a contact or not.
         const isUserContact = chatRoom.members.some(
-          (e) => e !== currentUser.uid && searchedUsersId.includes(e)
+          (e) => e !== currentUser.id && searchedUsersId.includes(e)
         );
         setIsContact(isUserContact);
 
@@ -41,7 +68,6 @@ export default function ChatLayout() {
       setFilteredUsers(searchedUsers);
     }
   };
-  const { isLoading, isAuthenticated } = useUser();
 
   if (isLoading) {
     return <Spinner />;
@@ -51,17 +77,20 @@ export default function ChatLayout() {
       <div className="min-w-full bg-white border-x border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700 rounded lg:grid lg:grid-cols-3">
         <div className="bg-white border-r border-gray-200 dark:bg-gray-900 dark:border-gray-700 lg:col-span-1">
           <SearchUsers handleSearch={handleSearch} />
-
-          {/* <AllUsers
-            users={searchQuery !== "" ? filteredUsers : users}
+          <AllUsers
+            users={searchQuery !== "" ? filteredUsers : usersWithoutReceiverId}
             chatRooms={searchQuery !== "" ? filteredRooms : chatRooms}
             setChatRooms={setChatRooms}
-            onlineUsersId={onlineUsersId}
+            // onlineUsersId={onlineUsersId}
             currentUser={currentUser}
-            changeChat={handleChatChange}
-          /> */}
+            // changeChat={handleChatChange}
+          />
         </div>
-        <Welcome />
+        {!chatId ? (
+          <Welcome />
+        ) : (
+          <ChatRoom currentChat={chatId} currentUser={currentUser} />
+        )}
       </div>
     </div>
   );

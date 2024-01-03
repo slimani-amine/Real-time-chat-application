@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import ThemeToggler from "./ThemeToggler";
+import ThemeToggler from "../../ui/ThemeToggler";
 import { HiOutlineLogout } from "react-icons/hi";
 import { useUser } from "../../hooks/useUser";
 import { useLogout } from "../../hooks/useLogout";

@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
 import toast from "react-hot-toast";
+import { useUpdateUserChat } from "../../hooks/useUpdateUserChat";
 import { useUpdateUser } from "../../hooks/useUpdateUser";
+
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -23,6 +25,7 @@ export default function Profile() {
   const [selectedAvatar, setSelectedAvatar] = useState();
   const [loading, setLoading] = useState(false);
   const { isUpadating, updateUser } = useUpdateUser();
+  const { updateUserChat } = useUpdateUserChat();
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -36,8 +39,14 @@ export default function Profile() {
     const profile = {
       fullName: userName,
       avatar: avatars[selectedAvatar],
+      userId: user?.id,
     };
-    updateUser(profile);
+    console.log(profile);
+    updateUser(profile, {
+      onSettled: (user) => {
+        updateUserChat(profile);
+      },
+    });
   };
 
   return (

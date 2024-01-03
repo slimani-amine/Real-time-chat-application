@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
@@ -13,6 +9,7 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import Profile from "./components/auth/Profile";
 import WithPrivateRoute from "./utils/WithPrivateRoute";
+import ChatRoom from "./components/layouts/ChatRoom";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,18 +29,26 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route
-            path="/profile"
-            element={
-              <WithPrivateRoute>
-                <Profile />
-              </WithPrivateRoute>
-            }
-          />
-          <Route
             path="/"
             element={
               <WithPrivateRoute>
                 <ChatLayout />
+              </WithPrivateRoute>
+            }
+          />
+          <Route
+            path="/:id"
+            element={
+              <WithPrivateRoute>
+                <ChatLayout />
+              </WithPrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <WithPrivateRoute>
+                <Profile />
               </WithPrivateRoute>
             }
           />

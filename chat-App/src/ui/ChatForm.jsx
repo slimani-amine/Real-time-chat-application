@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 
-import { PaperAirplaneIcon } from "@heroicons/react/solid";
-import { EmojiHappyIcon } from "@heroicons/react/outline";
+import { HiPaperAirplane as PaperAirplaneIcon } from "react-icons/hi2";
+
+import { IoMdHappy as EmojiHappyIcon } from "react-icons/io";
+
 import Picker from "emoji-picker-react";
 
 export default function ChatForm(props) {
@@ -56,7 +58,7 @@ export default function ChatForm(props) {
           />
           <button type="submit">
             <PaperAirplaneIcon
-              className="h-6 w-6 text-blue-600 dark:text-blue-500 rotate-[90deg]"
+              className="h-6 w-6 text-blue-600 dark:text-blue-500 "
               aria-hidden="true"
             />
           </button>
