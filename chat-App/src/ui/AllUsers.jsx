@@ -4,15 +4,16 @@ import { getChatRoom } from "../service/apiChatRooms";
 import { useNavigate } from "react-router-dom";
 import { getUserById } from "../service/apiUsers";
 import { getMessageByChatRoom } from "../service/apiMessages";
-import { useQuery } from "@tanstack/react-query";
 import { useCreateChatRoom } from "../hooks/useCreateChatRoom";
 
 export default function AllUsers({
   users,
   chatRooms,
-  setChatRooms,
   currentUser,
+  handleMessages,
+  handleRecieverId,
 }) {
+  console.log(chatRooms, currentUser);
   const navigate = useNavigate();
   const [chats, setChats] = useState([]);
   const [otherUsers, setOtherUsers] = useState(users);
@@ -23,7 +24,12 @@ export default function AllUsers({
         const chatsData = await Promise.all(
           chatRooms.map(async (room) => {
             try {
-              const chatData = await getUserById(room.reciever_id);
+              let chatData = [];
+              if (room.reciever_id !== currentUser.id) {
+                chatData = await getUserById(room.reciever_id);
+              } else {
+                chatData = await getUserById(room.sender_id);
+              }
               return chatData;
             } catch (error) {
               console.error(
@@ -46,31 +52,53 @@ export default function AllUsers({
   const { createChatRoom, isLoading } = useCreateChatRoom();
 
   async function handleOldChatRoom(user) {
+    console.log(user);
     try {
       const members = {
-        senderId: currentUser.id,
-        receiverId: user.id,
+        senderId: currentUser?.id,
+        receiverId: user?.user_id,
       };
-      const chatRoom = await getChatRoom(members);
-      const chatRoomId = chatRoom[0].reciever_id + "";
-      const messages = await getMessageByChatRoom(chatRoomId);
+      console.log(currentUser.id);
+      let chatRoom = [];
+      let recieverId = 0;
+      chatRoom = await getChatRoom(members);
+      recieverId = chatRoom[0]?.reciever_id;
+      const members2 = {
+        senderId: user?.user_id,
+        receiverId: currentUser?.id,
+      };
+      if (!chatRoom.length) {
+        chatRoom = await getChatRoom(members2);
+        recieverId = chatRoom[0]?.sender_id;
+      }
+      console.log(chatRoom);
+      const chatRoomId = chatRoom[0].id + "";
+
       
+      console.log(recieverId);
+      console.log(recieverId);
+      handleRecieverId(recieverId);
+      const messages = await getMessageByChatRoom(chatRoomId);
+      handleMessages(messages);
       navigate(`/${chatRoomId}`);
     } catch (error) {
       console.error("Error handling old chat room:", error.message);
     }
   }
 
-  function handleNewChatRoom(user) {
-    const members = {
-      senderId: currentUser.id,
-      receiverId: user.id,
-    };
-    createChatRoom(members);
-    handleOldChatRoom(user);
-
-    // setChats((prevChats) => [...prevChats, user]);
-    // setOtherUsers((prevUsers) => prevUsers.filter((u) => user.id !== u.id));
+  async function handleNewChatRoom(user) {
+    console.log(user);
+    try {
+      const members = {
+        senderId: currentUser.id,
+        receiverId: user.user_id,
+      };
+      console.log(members);
+      createChatRoom(members);
+      await handleOldChatRoom(user);
+      setChats((prevChats) => [...prevChats, user]);
+      // setOtherUsers((prevUsers) => prevUsers.filter((u) => user.id !== u.id));
+    } catch (error) {}
   }
 
   return (
@@ -85,7 +113,6 @@ export default function AllUsers({
               onClick={() => handleOldChatRoom(user)}
             >
               <UserLayout user={user} />
-              
             </div>
           ))}
         </li>
@@ -93,7 +120,7 @@ export default function AllUsers({
           Other Users
         </h2>
         <li>
-          {otherUsers.map((user, index) => (
+          {users.map((user, index) => (
             <div
               key={index}
               className="flex items-center px-3 py-2 text-sm bg-white border-b border-gray-200 hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"

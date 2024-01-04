@@ -23,7 +23,7 @@ export async function getUserById(receiverId) {
   const { data, error } = await supabase
     .from("user_info")
     .select("*")
-    .eq("id", receiverId);
+    .eq("user_id", receiverId);
   if (error) {
     throw new Error(error.message);
   }

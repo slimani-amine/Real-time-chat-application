@@ -1,4 +1,4 @@
-import supabase, { supabaseUrl } from "./supabase";
+import supabase from "./supabase";
 export async function getMessageByChatRoom(chatId) {
   let { data: messages, error } = await supabase
     .from("messages")
@@ -11,3 +11,14 @@ export async function getMessageByChatRoom(chatId) {
   return messages;
 }
 
+export async function createMessage({ sender_id, chat_id, message }) {
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({ sender_id: sender_id, chat_id, message })
+    .select();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+}

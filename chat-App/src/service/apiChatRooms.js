@@ -7,7 +7,6 @@ export async function getChatRoomById(id) {
   if (error) {
     throw new Error(error.message);
   }
-
   return chat;
 }
 export async function getChatRoom({ senderId, receiverId }) {
@@ -31,8 +30,17 @@ export async function getChatRoomBySenderId(senderId) {
   }
   return chat;
 }
+export async function getChatRoomByRecievrId(receiverId) {
+  let { data: chat, error } = await supabase
+    .from("chat")
+    .select("*")
+    .eq("reciever_id", receiverId);
+  if (error) {
+    throw new Error(error.message);
+  }
+  return chat;
+}
 export async function createChatRoom({ senderId, receiverId }) {
-  
   const { data, error } = await supabase
     .from("chat")
     .insert({ sender_id: senderId, reciever_id: receiverId })

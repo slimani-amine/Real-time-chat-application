@@ -1,20 +1,11 @@
-import { useState, useEffect, useRef } from "react";
-
+import { useState } from "react";
 import { HiPaperAirplane as PaperAirplaneIcon } from "react-icons/hi2";
-
 import { IoMdHappy as EmojiHappyIcon } from "react-icons/io";
-
 import Picker from "emoji-picker-react";
 
 export default function ChatForm(props) {
   const [message, setMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
-  const scrollRef = useRef();
-
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView();
-  }, [showEmojiPicker]);
 
   const handleEmojiClick = (event) => {
     let newMessage = message + event.emoji;
@@ -28,18 +19,17 @@ export default function ChatForm(props) {
   };
 
   return (
-    <div ref={scrollRef}>
+    <div className=" z-9999">
       {showEmojiPicker && (
         <Picker
-          className="dark:bg-gray-900"
+          className="dark:bg-gray-900 "
           onEmojiClick={(event) => handleEmojiClick(event)}
-          pickerStyle={{ position: 'absolute', zIndex: 9999 }} // Adjust the z-index as needed
-
+          style={{ position: "absolute", top: "165px" }}
         />
       )}
       <form onSubmit={handleFormSubmit}>
         <div className="flex items-center justify-between w-full p-3 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700">
-          <button
+          <div
             onClick={(e) => {
               e.preventDefault();
               setShowEmojiPicker(!showEmojiPicker);
@@ -49,7 +39,7 @@ export default function ChatForm(props) {
               className="h-7 w-7 text-blue-600 dark:text-blue-500 "
               aria-hidden="true"
             />
-          </button>
+          </div>
 
           <input
             type="text"

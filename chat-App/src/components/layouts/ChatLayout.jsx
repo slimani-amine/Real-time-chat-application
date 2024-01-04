@@ -7,23 +7,53 @@ import { useUser } from "../../hooks/useUser";
 import AllUsers from "../../ui/AllUsers";
 import ChatRoom from "./ChatRoom";
 import { useLocation } from "react-router-dom";
-import { getChatRoomBySenderId } from "../../service/apiChatRooms";
+import {
+  getChatRoomByRecievrId,
+  getChatRoomBySenderId,
+} from "../../service/apiChatRooms";
 export default function ChatLayout() {
   let location = useLocation();
 
   const chatId = location.pathname.split("/")[1];
 
-  const [isContact, setIsContact] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [chatRooms, setChatRooms] = useState([]);
   const [filteredRooms, setFilteredRooms] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { isLoading, users: allUsers } = useUsers();
   const { user: currentUser } = useUser();
+  const [recieverId, setRecieverId] = useState();
+  const handleMessages = (messages) => {
+    setMessages(messages);
+  };
+  const handleRecieverId = (id) => {
+    setRecieverId(id);
+  };
+  const users =
+    allUsers &&
+    allUsers.filter((user) => {
+      return user.user_id !== currentUser.id;
+    });
+
+  //chatrooms of the current user
   useEffect(() => {
     const fetchChatRoom = async () => {
       try {
-        const chatData = await getChatRoomBySenderId(currentUser.id);
+        console.log(currentUser.id);
+        const data = await getChatRoomBySenderId(currentUser.id);
+        const data2 = await getChatRoomByRecievrId(currentUser.id);
+
+        setRecieverId(data2?.reciever_id || data?.reciever_id);
+        const chatRooms = data.length ? data : data2.length ? data2 : [];
+        const chatData =
+          chatRooms &&
+          chatRooms.filter((room) => {
+            return (
+              room.reciever_id === currentUser.id ||
+              room.sender_id === currentUser.id
+            );
+          });
         setChatRooms(chatData);
       } catch (error) {
         console.error("Error fetching chat rooms:", error.message);
@@ -31,22 +61,22 @@ export default function ChatLayout() {
     };
     fetchChatRoom();
   }, []);
-
-  const users =
-    allUsers &&
-    allUsers.filter((user) => {
-      return user.user_id !== currentUser.id;
-    });
-
+  console.log(users, chatRooms);
   const usersWithoutReceiverId =
     (users &&
       users.filter((user) => {
         const isInChatRoom =
-          chatRooms && chatRooms.some((room) => room.reciever_id === user.id);
+          chatRooms &&
+          chatRooms.some((room) => {
+            return (
+              room.reciever_id === user.user_id ||
+              room.sender_id === user.user_id
+            );
+          });
         return !isInChatRoom;
       })) ||
     [];
-
+  console.log(usersWithoutReceiverId);
   const handleSearch = (newSearchQuery) => {
     setSearchQuery(newSearchQuery);
     console.log(allUsers, "allUsers");
@@ -57,7 +87,6 @@ export default function ChatLayout() {
     console.log(searchedUsersId, "searchedUsersId");
 
     if (chatRooms.length !== 0) {
-      console.log(chatRooms, "chatRooms");
       chatRooms.forEach((chatRoom) => {
         const usersWithoutReceiverId =
           searchedUsers &&
@@ -88,14 +117,20 @@ export default function ChatLayout() {
               searchQuery !== "" ? filteredUsers : usersWithoutReceiverId || []
             }
             chatRooms={searchQuery !== "" ? filteredRooms : chatRooms || []}
-            setChatRooms={setChatRooms}
             currentUser={currentUser}
+            handleMessages={handleMessages}
+            handleRecieverId={handleRecieverId}
           />
         </div>
         {!chatId ? (
           <Welcome />
         ) : (
-          <ChatRoom currentChat={chatId} currentUser={currentUser} />
+          <ChatRoom
+            currentChatId={chatId}
+            currentUser={currentUser}
+            messages={messages}
+            recieverId={recieverId}
+          />
         )}
       </div>
     </div>

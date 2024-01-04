@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useUser } from "../../hooks/useUser";
 import toast from "react-hot-toast";
 import { useUpdateUserChat } from "../../hooks/useUpdateUserChat";
@@ -11,8 +10,7 @@ function classNames(...classes) {
 }
 
 export default function Profile() {
-  const navigate = useNavigate();
-  const { isLoading, user } = useUser();
+  const { user } = useUser();
   const avatars = [
     "https://shorturl.at/enV05",
     "https://shorturl.at/qtuvL",
@@ -24,7 +22,7 @@ export default function Profile() {
   const [userName, setUsername] = useState(user?.user_metadata?.fullName);
   const [selectedAvatar, setSelectedAvatar] = useState();
   const [loading, setLoading] = useState(false);
-  const { isUpadating, updateUser } = useUpdateUser();
+  const { updateUser } = useUpdateUser();
   const { updateUserChat } = useUpdateUserChat();
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +39,6 @@ export default function Profile() {
       avatar: avatars[selectedAvatar],
       userId: user?.id,
     };
-    console.log(profile);
     updateUser(profile, {
       onSettled: (user) => {
         updateUserChat(profile);

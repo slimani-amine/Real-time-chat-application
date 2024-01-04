@@ -2,8 +2,8 @@ import UserLayout from "../components/layouts/UserLayout";
 import { useReceiver } from "../hooks/useReceiver";
 import Spinner from "./Spinner";
 
-export default function Contact() {
-  const { isFetching, receiver } = useReceiver();
+export default function Contact({recieverId}) {
+  const { isFetching, receiver } = useReceiver(recieverId);
 
   if (isFetching) {
     return <Spinner />;
