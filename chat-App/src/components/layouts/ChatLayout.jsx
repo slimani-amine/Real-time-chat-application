@@ -40,7 +40,6 @@ export default function ChatLayout() {
   useEffect(() => {
     const fetchChatRoom = async () => {
       try {
-        console.log(currentUser.id);
         const data = await getChatRoomBySenderId(currentUser.id);
         const data2 = await getChatRoomByRecievrId(currentUser.id);
 
@@ -61,7 +60,6 @@ export default function ChatLayout() {
     };
     fetchChatRoom();
   }, []);
-  console.log(users, chatRooms);
   const usersWithoutReceiverId =
     (users &&
       users.filter((user) => {
@@ -76,15 +74,12 @@ export default function ChatLayout() {
         return !isInChatRoom;
       })) ||
     [];
-  console.log(usersWithoutReceiverId);
   const handleSearch = (newSearchQuery) => {
     setSearchQuery(newSearchQuery);
-    console.log(allUsers, "allUsers");
     const searchedUsers = allUsers.filter((user) => {
       return user.fullName.toLowerCase().includes(newSearchQuery.toLowerCase());
     });
     const searchedUsersId = searchedUsers.map((u) => u.id);
-    console.log(searchedUsersId, "searchedUsersId");
 
     if (chatRooms.length !== 0) {
       chatRooms.forEach((chatRoom) => {
@@ -96,7 +91,6 @@ export default function ChatLayout() {
               chatRooms.some((room) => room.reciever_id === user.id);
             return isInChatRoom;
           });
-        console.log(usersWithoutReceiverId);
         setFilteredRooms(usersWithoutReceiverId);
       });
     } else {

@@ -9,6 +9,5 @@ export function useChatRoomBySenderId() {
       queryClient.setQueryData(["chatroom"], chatRoomBySenderId);
     },
   });
-  console.log(chatRoomBySenderId);
   return { chatRoomBySenderId, isLoading };
 }

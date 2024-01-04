@@ -8,9 +8,7 @@ export default function ChatRoom({ currentChatId, currentUser, messages,reciever
   const scrollRef = useRef();
   const { createMessage } = useCreateMessage();
 
-  const handleFormSubmit = (message) => {
-    console.log(currentUser);
-    
+  const handleFormSubmit = (message) => {    
     const newMessage = {
       sender_id: currentUser.id,
       chat_id: currentChatId,

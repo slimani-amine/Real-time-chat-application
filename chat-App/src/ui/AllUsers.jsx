@@ -13,7 +13,6 @@ export default function AllUsers({
   handleMessages,
   handleRecieverId,
 }) {
-  console.log(chatRooms, currentUser);
   const navigate = useNavigate();
   const [chats, setChats] = useState([]);
   const [otherUsers, setOtherUsers] = useState(users);
@@ -52,13 +51,11 @@ export default function AllUsers({
   const { createChatRoom, isLoading } = useCreateChatRoom();
 
   async function handleOldChatRoom(user) {
-    console.log(user);
     try {
       const members = {
         senderId: currentUser?.id,
         receiverId: user?.user_id,
       };
-      console.log(currentUser.id);
       let chatRoom = [];
       let recieverId = 0;
       chatRoom = await getChatRoom(members);
@@ -71,12 +68,8 @@ export default function AllUsers({
         chatRoom = await getChatRoom(members2);
         recieverId = chatRoom[0]?.sender_id;
       }
-      console.log(chatRoom);
       const chatRoomId = chatRoom[0].id + "";
 
-      
-      console.log(recieverId);
-      console.log(recieverId);
       handleRecieverId(recieverId);
       const messages = await getMessageByChatRoom(chatRoomId);
       handleMessages(messages);
@@ -87,13 +80,11 @@ export default function AllUsers({
   }
 
   async function handleNewChatRoom(user) {
-    console.log(user);
     try {
       const members = {
         senderId: currentUser.id,
         receiverId: user.user_id,
       };
-      console.log(members);
       createChatRoom(members);
       await handleOldChatRoom(user);
       setChats((prevChats) => [...prevChats, user]);
